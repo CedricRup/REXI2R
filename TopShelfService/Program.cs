@@ -3,6 +3,7 @@ using System.Configuration;
 using System.Data.SqlClient;
 using System.Data.SqlServerCe;
 using Dapper;
+using Nancy;
 using Nancy.Hosting.Self;
 using Nancy.Responses;
 using Topshelf;
@@ -56,6 +57,17 @@ namespace TopShelfService
                         return new JsonResponse(users, new DefaultJsonSerializer());
                     }
                     
+                };
+
+            Post["NewUser"] = _ =>
+                {
+                    var data = this.Bind<User>("Id", "Enabled");
+                    using (var connection = GetConnection())
+                    {
+                        connection.Open();
+                        var result = connection.Execute("insert into users (LastName,FirstName,Enabled) values (@LastName,@FirstName,1)",data);
+                        return new Response().WithStatusCode(200);
+                    }
                 };
         }
 
