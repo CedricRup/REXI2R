@@ -1,33 +1,23 @@
 ﻿using System;
-using System.Timers;
+using Nancy.Hosting.Self;
 using Topshelf;
 
 namespace TopShelfService
 {
 
-    public class TownCrier
-    {
-        readonly Timer _timer;
-        public TownCrier()
-        {
-            _timer = new Timer(1000) { AutoReset = true };
-            _timer.Elapsed += (sender, eventArgs) => Console.WriteLine("It is {0} an all is well", DateTime.Now);
-        }
-        public void Start() { _timer.Start(); }
-        public void Stop() { _timer.Stop(); }
-    }
-
     public class Program
     {
         public static void Main()
         {
+            
+
             HostFactory.Run(x =>
             {
-                x.Service<TownCrier>(s =>
+                x.Service<NancyHost>(s =>
                 {
-                    s.ConstructUsing(name => new TownCrier());
-                    s.WhenStarted(tc => tc.Start());
-                    s.WhenStopped(tc => tc.Stop());
+                    s.ConstructUsing(()=>new NancyHost(new[]{new Uri("http://localhost:8080"), }));
+                    s.WhenStarted(nh => nh.Start());
+                    s.WhenStopped(nh => nh.Stop());
                 });
                 x.RunAsLocalSystem();
 
@@ -35,6 +25,14 @@ namespace TopShelfService
                 x.SetDisplayName("Stuff");
                 x.SetServiceName("stuff");
             });
+        }
+    }
+
+    public class SampleModule : Nancy.NancyModule
+    {
+        public SampleModule()
+        {
+            Get["/"] = _ => "Hello World!";
         }
     }
 }
