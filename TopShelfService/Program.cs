@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Configuration;
+using System.Data.SqlClient;
+using System.Data.SqlServerCe;
 using Nancy.Hosting.Self;
 using Nancy.Responses;
 using Topshelf;
@@ -43,7 +45,32 @@ namespace TopShelfService
                     var req = this.Bind<UpdateStatusRequest>(); status = new Status(req.NewStatus, DateTime.Now);
                                        return new JsonResponse(status, new DefaultJsonSerializer());
             };
+
+            Get["/Users"] = _ =>
+                {
+                    using (var connection = GetConnection())
+                    {
+                        connection.Open();
+    
+                        return new JsonResponse(status, new DefaultJsonSerializer());
+
+                    }
+                    
+                };
         }
+
+        public SqlCeConnection GetConnection()
+        {
+            return new SqlCeConnection(ConfigurationManager.ConnectionStrings["Service"].ConnectionString);
+        }
+    }
+
+    public class User
+    {
+        public int Id { get; set; }
+        public string LastName { get; set; }
+        public string FirstName { get; set; }
+        public bool Enabled { get; set; }
     }
 
     public class UpdateStatusRequest
