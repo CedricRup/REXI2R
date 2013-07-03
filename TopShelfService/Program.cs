@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using Nancy.Hosting.Self;
 using Topshelf;
 
@@ -15,7 +16,7 @@ namespace TopShelfService
             {
                 x.Service<NancyHost>(s =>
                 {
-                    s.ConstructUsing(()=>new NancyHost(new[]{new Uri("http://localhost:8080"), }));
+                    s.ConstructUsing(()=>new NancyHost(new[]{new Uri(ConfigurationManager.AppSettings["uri"]), }));
                     s.WhenStarted(nh => nh.Start());
                     s.WhenStopped(nh => nh.Stop());
                 });
