@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.Data.SqlClient;
 using System.Data.SqlServerCe;
+using Dapper;
 using Nancy.Hosting.Self;
 using Nancy.Responses;
 using Topshelf;
@@ -51,9 +52,8 @@ namespace TopShelfService
                     using (var connection = GetConnection())
                     {
                         connection.Open();
-    
-                        return new JsonResponse(status, new DefaultJsonSerializer());
-
+                        var users = connection.Query<User>("select * from users");
+                        return new JsonResponse(users, new DefaultJsonSerializer());
                     }
                     
                 };
