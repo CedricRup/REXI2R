@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Configuration;
 using Nancy.Hosting.Self;
+using Nancy.Responses;
 using Topshelf;
+using Nancy.ModelBinding;
 
 namespace TopShelfService
 {
@@ -31,9 +33,43 @@ namespace TopShelfService
 
     public class SampleModule : Nancy.NancyModule
     {
+        private Status status = new Status("Glop", DateTime.Now);
+
         public SampleModule()
         {
-            Get["/"] = _ => "Hello World!";
+            Get["/Status"] = _ => new JsonResponse(status, new DefaultJsonSerializer());
+            Post["/Status"] = o =>
+                {
+                    var req = this.Bind<UpdateStatusRequest>(); status = new Status(req.NewStatus, DateTime.Now);
+                                       return new JsonResponse(status, new DefaultJsonSerializer());
+            };
+        }
+    }
+
+    public class UpdateStatusRequest
+    {
+        public string NewStatus { get; set; }
+    }
+
+    public class Status
+    {
+        private readonly string state;
+        private readonly DateTime lastUpdate;
+
+        public string State
+        {
+            get { return state; }
+        }
+
+        public DateTime LastUpdate
+        {
+            get { return lastUpdate; }
+        }
+
+        public Status(string state, DateTime lastUpdate)
+        {
+            this.state = state;
+            this.lastUpdate = lastUpdate;
         }
     }
 }
